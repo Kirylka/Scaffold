@@ -84,7 +84,7 @@ class HomeController extends Controller {
 		}
 		$event->save();
 
-		if ($user) return $user;
+		if (isset($user)) return $user;
 
 	}
 
