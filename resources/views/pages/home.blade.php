@@ -30,13 +30,13 @@
             <div class="form-group">
                 <label for="start_date" class="col-sm-2 control-label">Start date</label>
                 <div class="col-sm-10">
-                    <input required="required" type="date" class="form-control" id="start_date">
+                    <input required="required" class="form-control" id="start_date">
                 </div>
             </div>
             <div class="form-group">
                 <label for="end_date" class="col-sm-2 control-label">End date</label>
                 <div class="col-sm-10">
-                    <input required="required" type="date" class="form-control" id="end_date" >
+                    <input required="required" class="form-control" id="end_date">
                 </div>
             </div>
 
