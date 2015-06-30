@@ -124,8 +124,7 @@ function save_form() {
 		data.url = 'events';
 
 		sendAjax(data, close_form);
-		scheduler.load("events", "json");
-		scheduler.updateView();
+
 	}
 	else
 	{
@@ -137,6 +136,8 @@ function save_form() {
 function close_form() {
 	$("#delete").show();
 	scheduler.endLightbox(false, html("my_form"));
+	scheduler.load("events", "json");
+	scheduler.updateView();
 }
 
 function delete_event() {
