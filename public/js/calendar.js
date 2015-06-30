@@ -1,4 +1,5 @@
 $( document ).ready(function() {
+	scheduler.config.hour_date = "%g:%i %A";
 	scheduler.init('scheduler_here', new Date(),"month");
 	scheduler.load("events","json");
 	scheduler.config.details_on_dblclick = true;
@@ -18,6 +19,7 @@ $( document ).ready(function() {
 		if (ev.user_id !== undefined) {
 			hideUserInputs();
 		} else {
+			$("#delete").hide();
 			showUserInputs();
 		}
 		$("#client").val(ev.user_id);
@@ -32,7 +34,7 @@ $( document ).ready(function() {
 	scheduler.attachEvent("onClick", function (id, e){
 		var ev = scheduler.getEvent(id);
 		showDetails(ev.user_id)
-		return true;
+		return false;
 	});
 
 	$( "#client" ).change(function() {
@@ -133,6 +135,7 @@ function save_form() {
 
 }
 function close_form() {
+	$("#delete").show();
 	scheduler.endLightbox(false, html("my_form"));
 }
 
@@ -150,7 +153,7 @@ function delete_event() {
 	sendAjax(data);
 }
 
-function sendAjax(data, successCallback, failCallback)
+function sendAjax(data, successCallback)
 {
 	var queryData = {};
 	queryData.url = data.url;
@@ -164,12 +167,6 @@ function sendAjax(data, successCallback, failCallback)
 
 			successCallback.call(this, response);
 
-
-			return true;
-		})
-		.fail(function(response) {
-
-			failCallback.call(this);
 
 			return true;
 		});
