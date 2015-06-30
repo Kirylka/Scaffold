@@ -6,8 +6,8 @@
 
         #my_form {
             position: absolute;
-            top: 100px;
-            left: 200px;
+            top: 50px;
+            left: 50px;
             z-index: 10001;
             display: none;
             background-color: white;
@@ -15,6 +15,8 @@
             font-family: Tahoma;
             font-size: 10pt;
             width: 600px;
+            transform: translate(-50%, -50%);
+            height: 50%;
         }
 
     </style>
@@ -26,7 +28,7 @@
         <div class="page-header">
             <h2>Calendar</h2>
         </div>
-        <div id="my_form" style="display: none; top: 356px; left: 164px;">
+        <div id="my_form" style="display: none;">
             <div class="form-group">
                 <label for="start_date" class="col-sm-2 control-label">Start date</label>
                 <div class="col-sm-10">
