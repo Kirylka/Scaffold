@@ -64,11 +64,24 @@ class HomeController extends Controller {
 	public function postEvents()
 	{
 		$id = \Input::get('id');
+		$user_id = \Input::get('user_id');
 
 		$event = Event::findOrNew($id);
 		$event->from = \Input::get('from');
 		$event->to = \Input::get('to');
-		$event->user_id = \Input::get('user_id');
+
+
+		if ($user_id) {
+			$event->user_id = $user_id;
+		}
+		else {
+			$user = new User();
+			$user->username = \Input::get('first_name');
+			$user->name = \Input::get('last_name');
+			$user->email = \Input::get('email');
+			$user->save();
+			$event->user_id = $user->id;
+		}
 		$event->save();
 
 	}
@@ -86,7 +99,7 @@ class HomeController extends Controller {
 	{
 		return \DB::table('events')
 			->leftJoin('users', 'events.user_id', '=', 'users.id')
-			->select('events.from as start_date', 'events.to as end_date','events.id','events.id as text','users.username as first_name','users.name as last_name','users.email')
+			->select('events.from as start_date', 'events.to as end_date','events.id','events.id as text','users.username as first_name','users.name as last_name','users.email as email')
 			->get();
 
 	}

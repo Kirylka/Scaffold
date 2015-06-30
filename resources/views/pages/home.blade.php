@@ -1,6 +1,7 @@
 @extends('app')
 @section('styles')
     <link rel="stylesheet" href="packages/scheduler/codebase/dhtmlxscheduler.css" type="text/css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <style type="text/css" media="screen">
 
         #my_form {
@@ -13,6 +14,7 @@
             padding: 20px;
             font-family: Tahoma;
             font-size: 10pt;
+            width: 600px;
         }
 
     </style>
@@ -28,20 +30,43 @@
             <div class="form-group">
                 <label for="start_date" class="col-sm-2 control-label">Start date</label>
                 <div class="col-sm-10">
-                    <input type="date" class="form-control" id="start_date" placeholder="Email">
+                    <input required="required" type="date" class="form-control" id="start_date">
                 </div>
             </div>
             <div class="form-group">
                 <label for="end_date" class="col-sm-2 control-label">End date</label>
                 <div class="col-sm-10">
-                    <input type="date" class="form-control" id="end_date" placeholder="Password">
+                    <input required="required" type="date" class="form-control" id="end_date" >
                 </div>
             </div>
 
             <div class="form-group">
+                <label for="first_name" class="col-sm-2 control-label">First name</label>
+                <div class="col-sm-10">
+                    <input required="required" type="text" class="form-control" id="first_name" placeholder="First name">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="last_name" class="col-sm-2 control-label">Last name</label>
+                <div class="col-sm-10">
+                    <input required="required" type="text" class="form-control" id="last_name" placeholder="Last name">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="last_name" class="col-sm-2 control-label">Email</label>
+                <div class="col-sm-10">
+                    <input required="required" type="text" class="form-control" id="email" placeholder="Email">
+                </div>
+            </div>
+
+
+            <div class="form-group">
                 <label for="end_date" class="col-sm-2 control-label">Client</label>
                 <div class="col-sm-10">
-                   <select name="client" id="client">
+                   <select required="required" name="client" id="client">
+                       <option value="">---</option>
                        @foreach($clients as $key => $value)
                            <option value="{{$key}}">{{$value}}</option>
                        @endforeach
@@ -75,7 +100,7 @@
     <div class="col-md-4 col-sm-4 col-lg-4">
         <div id="clientDetails" style="display: none; background-color: #007196; color: #ffffff ">
             Name: <span id="userName"></span> <br>
-            Email: <span id="email"></span> <br>
+            Email: <span id="userEmail"></span> <br>
             Events: <span id="dates"></span>
         </div>
     </div>
@@ -88,6 +113,7 @@
 @section('scripts')
     @parent
     <script src="packages/scheduler/codebase/dhtmlxscheduler.js" type="text/javascript"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script src="js/calendar.js" type="text/javascript"></script>
 @endsection
 @stop

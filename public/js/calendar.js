@@ -1,5 +1,3 @@
-
-
 $( document ).ready(function() {
 	scheduler.init('scheduler_here', new Date(),"month");
 	scheduler.load("events","json");
@@ -16,19 +14,45 @@ $( document ).ready(function() {
 		html("start_date").value = start_date;
 		html("end_date").value = end_date;
 		html("end_date").value = end_date;
+		showUserInputs();
+		if (ev.user_id !== undefined) {
+			hideUserInputs();
+		} else {
+			showUserInputs();
+		}
 		$("#client").val(ev.user_id);
 	};
-
+	$( "#start_date" ).datepicker();
+	$( "#end_date" ).datepicker();
 	scheduler.attachEvent("onClick", function (id, e){
 		var ev = scheduler.getEvent(id);
 		showDetails(ev.user_id)
 		return true;
 	});
 
+	$( "#client" ).change(function() {
+
+		if (html("client").value == '') {
+			showUserInputs();
+		} else {
+			hideUserInputs();
+		};
+	});
+
+
+
 
 });
 var html = function(id) { return document.getElementById(id); }; //just a helper
 
+var inputs = {
+	'email': $('#email'),
+	'client': $('#client'),
+	'last_name': $('#last_name'),
+	'first_name': $('#first_name'),
+	'end_date': $('#end_date'),
+	'start_date': $('#start_date'),
+};
 
 function showDetails(user_id) {
 	queryData = {};
@@ -48,9 +72,9 @@ function showDetails(user_id) {
 			var email = response.user.email;
 
 			$("#userName").html(name);
-			$("#email").html(email);
+			$("#userEmail").html(email);
 			$("#dates").text('');
-			for(var i=0;i<response.events.length;i++)
+			for (var i=0;i<response.events.length;i++)
 			{
 				$("#dates").append(response.events[i].from + "<br>");
 			}
@@ -66,18 +90,40 @@ function showDetails(user_id) {
 		});
 }
 function save_form() {
-	var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
-	var data = {};
-	data.data = {};
-	data.data.from = ev.start_date = html("start_date").value;
-	data.data.to = ev.end_date = html("end_date").value;
-	data.data.user_id = ev.user = html("client").value;
-	data.data.id = ev.id;
-	data.url = 'events';
+	var mode;
+	clearErrors();
+	var user = html("client").value;
+	if (user == '')  {
+		mode = 'noClient'
+	}
+	else
+	{
+		mode = 'withClient';
+	}
+	var errors = checkValues(mode);
 
-	sendAjax(data,close_form);
-	scheduler.load("events","json");
-	scheduler.updateView();
+	// If everything is OK then submit form
+	if(errors.length == 0) {
+		var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
+		var data = {};
+		data.data = {};
+		data.data.from = ev.start_date = html("start_date").value;
+		data.data.to = ev.end_date = html("end_date").value;
+		data.data.user_id = ev.user = html("client").value;
+		data.data.first_name = ev.user = html("first_name").value;
+		data.data.last_name = ev.user = html("last_name").value;
+		data.data.email = ev.user = html("email").value;
+		data.data.id = ev.id;
+		data.url = 'events';
+
+		sendAjax(data, close_form);
+		scheduler.load("events", "json");
+		scheduler.updateView();
+	}
+	else
+	{
+		showErrors(errors);
+	}
 
 
 }
@@ -134,4 +180,56 @@ function toDateFormat(date) {
 	if(dd<10){dd='0'+dd}
 	if(mm<10){mm='0'+mm}
 	return yyyy+'-'+mm+'-'+dd;
+}
+
+function showErrors(errors) {
+	for(var i = 0; i < errors.length; i++) {
+		var fieldId = errors[i].id;
+		var errorText = errors[i].text;
+		var el = html(fieldId);
+		$(el).parent().addClass('has-error');
+		var help = $(el).parent().children('.help-block');
+		$(help).show().html(errorText);
+	}
+}
+
+function clearErrors() {
+	for(var id in inputs) {
+		var field = inputs[id];
+		$(field).parent().removeClass('has-error');
+		$(field).parent().children('.help-block').hide();
+	}
+}
+
+function checkValues(mode) {
+	var errors = [];
+
+	if (mode == 'noClient') {
+		if ($('#email').val() == '') errors.push({id: 'email', text: 'Email is required'});
+		if ($('#first_name').val() == '') errors.push({id: 'first_name', text: 'First name is required'});
+		if ($('#last_name').val() == '') errors.push({id: 'last_name', text: 'Last name is required'});
+		var re = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
+		if(!re.test($('#email').val())) errors.push({id: 'email', text: 'Invalid email format'});
+	}
+	else if (mode == 'withClient') {
+		if ($('#client').val() == '') errors.push({id: 'client', text: 'Client is required'});
+	}
+
+	if ($('#start_date').val() == '') errors.push({id: 'start_date', text: 'Start date is required'});
+	if ($('#end_date').val() == '') errors.push({id: 'end_date', text: 'End date is required'});
+
+
+	return errors;
+}
+
+function hideUserInputs() {
+	$("#email").parent().parent().hide();
+	$("#last_name").parent().parent().hide();
+	$("#first_name").parent().parent().hide();
+}
+
+function showUserInputs() {
+	$("#email").parent().parent().show();
+	$("#last_name").parent().parent().show();
+	$("#first_name").parent().parent().show();
 }
