@@ -22,8 +22,13 @@ $( document ).ready(function() {
 		}
 		$("#client").val(ev.user_id);
 	};
-	$( "#start_date" ).datepicker();
-	$( "#end_date" ).datepicker();
+
+	$( "#start_date" ).datepicker({
+		dateFormat: "yy-mm-dd"
+	});
+	$( "#end_date" ).datepicker({
+		dateFormat: "yy-mm-dd"
+	});
 	scheduler.attachEvent("onClick", function (id, e){
 		var ev = scheduler.getEvent(id);
 		showDetails(ev.user_id)
