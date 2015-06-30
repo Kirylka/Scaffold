@@ -134,6 +134,15 @@ function save_form() {
 
 
 }
+
+function clearValues() {
+
+
+	$.each(inputs, function(index, value) {
+		value.val("");;
+	})
+}
+
 function close_form(response) {
 	$("#delete").show();
 	if (response) {
@@ -142,6 +151,7 @@ function close_form(response) {
 	scheduler.endLightbox(false, html("my_form"));
 	scheduler.load("events", "json");
 	scheduler.updateView();
+	clearValues();
 
 }
 
