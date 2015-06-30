@@ -84,6 +84,8 @@ class HomeController extends Controller {
 		}
 		$event->save();
 
+		return $user;
+
 	}
 
 	public function deleteEvent()

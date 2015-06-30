@@ -116,14 +116,15 @@ function save_form() {
 		data.data = {};
 		data.data.from = ev.start_date = html("start_date").value;
 		data.data.to = ev.end_date = html("end_date").value;
-		data.data.user_id = ev.user = html("client").value;
-		data.data.first_name = ev.user = html("first_name").value;
-		data.data.last_name = ev.user = html("last_name").value;
-		data.data.email = ev.user = html("email").value;
+		data.data.user_id  = html("client").value;
+		data.data.first_name  = html("first_name").value;
+		data.data.last_name  = html("last_name").value;
+		data.data.email  = html("email").value;
 		data.data.id = ev.id;
 		data.url = 'events';
 
 		sendAjax(data, close_form);
+
 
 	}
 	else
@@ -133,11 +134,22 @@ function save_form() {
 
 
 }
-function close_form() {
+function close_form(response) {
 	$("#delete").show();
+	if (response) {
+		addToUsers(response.id, response.username);
+	}
 	scheduler.endLightbox(false, html("my_form"));
 	scheduler.load("events", "json");
 	scheduler.updateView();
+
+}
+
+function addToUsers(id, username) {
+	$('#client').append($('<option>', {
+		value: id,
+		text: username
+	}));
 }
 
 function delete_event() {
@@ -153,6 +165,7 @@ function delete_event() {
 
 	sendAjax(data);
 }
+
 
 function sendAjax(data, successCallback)
 {
@@ -208,18 +221,18 @@ function checkValues(mode) {
 	var errors = [];
 
 	if (mode == 'noClient') {
-		if ($('#email').val() == '') errors.push({id: 'email', text: 'Email is required'});
-		if ($('#first_name').val() == '') errors.push({id: 'first_name', text: 'First name is required'});
-		if ($('#last_name').val() == '') errors.push({id: 'last_name', text: 'Last name is required'});
+		if ($('#email').val().trim() == '') errors.push({id: 'email', text: 'Email is required'});
+		if ($('#first_name').val().trim() == '') errors.push({id: 'first_name', text: 'First name is required'});
+		if ($('#last_name').val().trim() == '') errors.push({id: 'last_name', text: 'Last name is required'});
 		var re = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
-		if(!re.test($('#email').val())) errors.push({id: 'email', text: 'Invalid email format'});
+		if(!re.test($('#email').val().trim())) errors.push({id: 'email', text: 'Invalid email format'});
 	}
 	else if (mode == 'withClient') {
-		if ($('#client').val() == '') errors.push({id: 'client', text: 'Client is required'});
+		if ($('#client').val().trim() == '') errors.push({id: 'client', text: 'Client is required'});
 	}
 
-	if ($('#start_date').val() == '') errors.push({id: 'start_date', text: 'Start date is required'});
-	if ($('#end_date').val() == '') errors.push({id: 'end_date', text: 'End date is required'});
+	if ($('#start_date').val().trim() == '') errors.push({id: 'start_date', text: 'Start date is required'});
+	if ($('#end_date').val().trim() == '') errors.push({id: 'end_date', text: 'End date is required'});
 
 
 	return errors;
