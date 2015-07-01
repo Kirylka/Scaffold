@@ -7,8 +7,6 @@
 
         #my_form {
             position: absolute;
-            top: 50px;
-            left: 50px;
             z-index: 10001;
             display: none;
             background-color: white;
@@ -16,7 +14,7 @@
             font-family: Tahoma;
             font-size: 10pt;
             width: 600px;
-            transform: translate(-50%, -50%);
+            transform: translate(-75%, -30%);
             height: 80%;
         }
 

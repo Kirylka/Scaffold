@@ -5,6 +5,10 @@ $( document ).ready(function() {
 	scheduler.config.details_on_dblclick = true;
 	scheduler.config.details_on_create = true;
 
+    scheduler.attachEvent("onBeforeDrag", function(){
+        return false;
+    })
+
 	scheduler.showLightbox = function(id) {
 		var ev = scheduler.getEvent(id);
 		scheduler.startLightbox(id, html("my_form"));
