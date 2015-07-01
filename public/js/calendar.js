@@ -9,18 +9,20 @@ $( document ).ready(function() {
 		var ev = scheduler.getEvent(id);
 		scheduler.startLightbox(id, html("my_form"));
 
-		var start_date = toDateFormat(ev.start_date);
-		var end_date = toDateFormat(ev.end_date);
+		var start_date = moment(ev.start_date);
+		var end_date = moment(ev.end_date);
 
-		html("start_date").value = start_date;
-		html("end_date").value = end_date;
-		html("end_date").value = end_date;
-		showUserInputs();
+		html("start_date").value = start_date.format("YYYY-MM-DD");
+		html("end_date").value = end_date.format("YYYY-MM-DD");
+
+        html("start_time").value = start_date.format("h:mm A");
+        html("end_time").value = end_date.format("h:mm A");
+
 		if (ev.user_id !== undefined) {
 			hideUserInputs();
 		} else {
 			$("#delete").hide();
-			showUserInputs();
+            hideUserInputs();
 		}
 		$("#client").val(ev.user_id);
 	};
@@ -31,15 +33,19 @@ $( document ).ready(function() {
 	$( "#end_date" ).datepicker({
 		dateFormat: "yy-mm-dd"
 	});
+    $( "#start_time" ).timepicker();
+    $( "#end_time" ).timepicker();
 	scheduler.attachEvent("onClick", function (id, e){
 		var ev = scheduler.getEvent(id);
 		showDetails(ev.user_id)
 		return false;
 	});
 
+
+
 	$( "#client" ).change(function() {
 
-		if (html("client").value == '') {
+		if ($("#client").find(":selected")[0].id == "new_client") {
 			showUserInputs();
 		} else {
 			hideUserInputs();
@@ -59,6 +65,8 @@ var inputs = {
 	'first_name': $('#first_name'),
 	'end_date': $('#end_date'),
 	'start_date': $('#start_date'),
+    'start_time': $('#start_time'),
+    'end_time': $('#end_time')
 };
 
 function showDetails(user_id) {
@@ -83,7 +91,7 @@ function showDetails(user_id) {
 			$("#dates").text('');
 			for (var i=0;i<response.events.length;i++)
 			{
-				$("#dates").append(response.events[i].from + "<br>");
+				$("#dates").append(response.events[i].from.split(' ')[0] + "<br>");
 			}
 
 
@@ -97,25 +105,45 @@ function showDetails(user_id) {
 		});
 }
 function save_form() {
-	var mode;
-	clearErrors();
-	var user = html("client").value;
-	if (user == '')  {
-		mode = 'noClient'
-	}
-	else
+	var mode,
+        from,
+        from_obj,
+        from_string,
+        to,
+        to_obj,
+        to_string;
+
+    clearErrors();
+
+	var user = $("#client").find(":selected")[0].id;
+	if (user == "new_client")
 	{
 		mode = 'withClient';
 	}
-	var errors = checkValues(mode);
+    else
+    {
+        mode = 'noClient'
+    }
+
+    //time formatting
+    from_string = $("#start_date").val() +  " " + $("#start_time").val();
+    to_string = $("#end_date").val() +  " " + $("#end_time").val();
+    from_obj = moment(from_string, ["YYYY-M-D h:mm A"]);
+    to_obj = moment(to_string, ["YYYY-M-D h:mm A"]);
+    from = from_obj.format("YYYY-MM-DD H:mm");
+    to = to_obj.format("YYYY-MM-DD H:mm");
+
+	var errors = checkValues(mode, from_obj, to_obj);
 
 	// If everything is OK then submit form
 	if(errors.length == 0) {
+
 		var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
 		var data = {};
 		data.data = {};
-		data.data.from = ev.start_date = html("start_date").value;
-		data.data.to = ev.end_date = html("end_date").value;
+
+		data.data.from = from;
+		data.data.to = to;
 		data.data.user_id  = html("client").value;
 		data.data.first_name  = html("first_name").value;
 		data.data.last_name  = html("last_name").value;
@@ -152,6 +180,7 @@ function close_form(response) {
 	scheduler.load("events", "json");
 	scheduler.updateView();
 	clearValues();
+    clearErrors();
 
 }
 
@@ -214,7 +243,7 @@ function showErrors(errors) {
 		var errorText = errors[i].text;
 		var el = html(fieldId);
 		$(el).parent().addClass('has-error');
-		var help = $(el).parent().children('.help-block');
+		var help = $("#show_error");
 		$(help).show().html(errorText);
 	}
 }
@@ -224,26 +253,39 @@ function clearErrors() {
 		var field = inputs[id];
 		$(field).parent().removeClass('has-error');
 		$(field).parent().children('.help-block').hide();
+
+
 	}
+    var help = $("#show_error");
+    $(help).hide().html("");
 }
 
-function checkValues(mode) {
+function checkValues(mode, from_obj ,to_obj) {
 	var errors = [];
 
-	if (mode == 'noClient') {
+	if (mode == 'withClient') {
 		if ($('#email').val().trim() == '') errors.push({id: 'email', text: 'Email is required'});
 		if ($('#first_name').val().trim() == '') errors.push({id: 'first_name', text: 'First name is required'});
 		if ($('#last_name').val().trim() == '') errors.push({id: 'last_name', text: 'Last name is required'});
 		var re = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
 		if(!re.test($('#email').val().trim())) errors.push({id: 'email', text: 'Invalid email format'});
+
 	}
-	else if (mode == 'withClient') {
+	else if (mode == 'noClient') {
 		if ($('#client').val().trim() == '') errors.push({id: 'client', text: 'Client is required'});
 	}
 
 	if ($('#start_date').val().trim() == '') errors.push({id: 'start_date', text: 'Start date is required'});
 	if ($('#end_date').val().trim() == '') errors.push({id: 'end_date', text: 'End date is required'});
+    if ($('#start_time').val().trim() == '') errors.push({id: 'start_time', text: 'End date is required'});
+    if ($('#end_time').val().trim() == '') errors.push({id: 'end_time', text: 'End date is required'});
 
+    if (to_obj.unix() < from_obj.unix()) {
+        errors.push({id: 'end_date', text: ''});
+        errors.push({id: 'start_date', text: ''});
+        errors.push({id: 'start_time', text: ''});
+        errors.push({id: 'end_time', text: ''});
+    }
 
 	return errors;
 }
